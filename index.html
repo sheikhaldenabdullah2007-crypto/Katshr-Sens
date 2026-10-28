@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10120f">
+  <meta name="description" content="Katshr Sensitivity - أداة اقتراح إعدادات حساسية Free Fire حسب مواصفات هاتفك.">
+  <title>Katshr Sensitivity | Free Fire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Ccircle cx=%2712%27 cy=%2712%27 r=%278%27 fill=%27none%27 stroke=%27%23b8f34a%27 stroke-width=%272%27/%3E%3Ccircle cx=%2712%27 cy=%2712%27 r=%272.5%27 fill=%27%23b8f34a%27/%3E%3C/svg%3E">
+  <script src="catalog.js" defer></script>
+  <script src="engine.js" defer></script>
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <a href="#" class="brand" aria-label="Katshr Sensitivity">
+      <span class="brand-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 1.5V5M12 19V22.5M1.5 12H5M19 12H22.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      <span class="brand-text">KATSHR<span>SENSITIVITY</span></span>
+    </a>
+    <div class="game-label"><span class="live-dot"></span> FREE FIRE</div>
+  </header>
+
+  <main class="main-content">
+    <section class="hero">
+      <div class="eyebrow"><span class="eyebrow-line"></span> SMART DEVICE ANALYSIS</div>
+      <h1>حساسية تناسب <span>جهازك.</span></h1>
+      <p class="hero-description">اختر هاتفك، ودع الأداة تجمع معلوماته المتاحة وتجهّز لك إعدادات مقترحة للعبة Free Fire.</p>
+    </section>
+
+    <section class="generator-card">
+      <div class="card-heading">
+        <div>
+          <span class="step-label">DEVICE CONFIGURATION</span>
+          <h2>إعداد جهازك</h2>
+        </div>
+        <div class="device-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M10 5H14M11 18.5H13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+      </div>
+
+      <div class="form-group">
+        <label for="brandSelect">الشركة المصنّعة <span>01</span></label>
+        <div class="select-wrap">
+          <select id="brandSelect" required>
+            <option value="">اختر شركة هاتفك</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none"><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="modelSelect">موديل الهاتف <span>02</span></label>
+        <div class="select-wrap">
+          <select id="modelSelect" disabled required>
+            <option value="">اختر الشركة أولًا</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none"><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="field-hint" id="modelHint">اختر الشركة لعرض الموديلات المتاحة.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="modelSearch">أو ابحث عن هاتفك</label>
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <input id="modelSearch" type="search" maxlength="60" placeholder="مثال: Galaxy A15 أو iPhone 13" autocomplete="off">
+        </div>
+        <div id="searchResults" class="search-results hidden"></div>
+      </div>
+
+      <div class="form-group">
+        <span class="group-label" id="styleLabel">أسلوب اللعب</span>
+        <div class="style-options" role="radiogroup" aria-labelledby="styleLabel">
+          <label class="style-option selected">
+            <input type="radio" name="gameStyle" value="balanced" checked>
+            <span class="style-symbol">◎</span>
+            <span>متوازن</span>
+          </label>
+          <label class="style-option">
+            <input type="radio" name="gameStyle" value="rush">
+            <span class="style-symbol">↗</span>
+            <span>هجوم سريع</span>
+          </label>
+          <label class="style-option">
+            <input type="radio" name="gameStyle" value="precision">
+            <span class="style-symbol">⌖</span>
+            <span>دقة وتصويب</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="button" id="generateBtn" class="generate-btn" disabled>
+        <span class="button-text">تحليل الجهاز وتوليد الحساسية</span>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M7 7h10v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <p class="privacy-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> لا نحتاج إلى تسجيل حساب أو إدخال كلمة مرور.</p>
+      <p class="mode-badge" id="modeBadge" role="status">جاري فحص وضع التحليل…</p>
+    </section>
+
+    <section class="features">
+      <div class="feature-item">
+        <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+        <div><h3>تحليل منظم</h3><p>خطوات واضحة قبل عرض النتيجة.</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15v-4m4 4V7m4 8V9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+        <div><h3>إعدادات قابلة للتعديل</h3><p>انسخ الأرقام وجرّبها داخل اللعبة.</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
+        <div><h3>تصميم خفيف</h3><p>واجهة مناسبة للهاتف والكمبيوتر.</p></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <a href="#" class="footer-brand">KATSHR SENSITIVITY</a>
+      <p>أداة مستقلة غير تابعة رسميًا لشركة Garena.</p>
+      <p class="footer-copy">© 2026 Katshr. جميع الحقوق محفوظة.</p>
+    </footer>
+  </main>
+
+  <div id="analysisModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="analysisTitle">
+    <div class="modal-backdrop" data-close="analysis"></div>
+    <div class="modal-panel analysis-panel">
+      <div class="modal-top"><span class="modal-kicker">SMART ANALYSIS</span><button class="icon-button" type="button" data-close="analysis" aria-label="إغلاق">×</button></div>
+      <div class="scanner"><div class="scanner-ring ring-one"></div><div class="scanner-ring ring-two"></div><div class="scanner-core"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="1.5"/></svg></div></div>
+      <h2 id="analysisTitle">جاري تجهيز التحليل</h2>
+      <p id="analysisSubtitle">يتم فحص المعلومات المتاحة...</p>
+      <div class="analysis-progress"><div id="progressBar" class="indeterminate"></div></div>
+      <div class="analysis-steps">
+        <div class="analysis-step" id="stepDevice"><span class="step-status">1</span><span>البحث عن مواصفات الجهاز في الإنترنت</span><span class="step-check">✓</span></div>
+        <div class="analysis-step" id="stepSpecs"><span class="step-status">2</span><span>مراجعة المصادر وتحليلها</span><span class="step-check">✓</span></div>
+        <div class="analysis-step" id="stepSettings"><span class="step-status">3</span><span>ضبط الإعدادات المقترحة</span><span class="step-check">✓</span></div>
+      </div>
+      <p class="analysis-disclaimer" id="analysisDisclaimer"></p>
+    </div>
+  </div>
+
+  <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="modal-backdrop" data-close="result"></div>
+    <div class="modal-panel result-panel">
+      <div class="modal-top"><span class="modal-kicker">YOUR CONFIGURATION</span><button class="icon-button" type="button" data-close="result" aria-label="إغلاق">×</button></div>
+      <div class="result-heading">
+        <div class="result-success"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><h2 id="resultTitle">إعدادات الحساسية</h2><p id="resultDevice">هاتفك المحدد</p><span class="result-mode" id="resultMode"></span></div>
+      </div>
+      <div class="notice-box"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><p id="resultNotice">الإعدادات التالية مقترحات أولية وليست نتائج مختبرة أو إعدادات رسمية.</p></div>
+      <div class="spec-summary" id="specSummary"></div>
+      <p class="ai-summary hidden" id="aiSummary"></p>
+      <div class="settings-title"><h3>إعدادات الحساسية</h3><span>0–100</span></div>
+      <div id="sensitivityList" class="sensitivity-list"></div>
+      <div class="dpi-card"><div><span id="dpiLabel">DPI (كثافة الشاشة)</span><p id="dpiNote"></p></div><strong id="dpiValue">—</strong></div>
+      <div class="result-actions"><button id="copyBtn" class="generate-btn" type="button"><svg viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="1.7"/></svg><span>نسخ جميع الإعدادات</span></button><button id="newDeviceBtn" class="secondary-btn" type="button">تجربة هاتف آخر</button></div>
+      <div class="sources-section"><h3>المصادر وحالة المعلومات</h3><div id="sourceStatus" class="source-status"></div><ul id="sourcesList" class="sources-list"></ul></div>
+      <p class="result-footnote">اختبر الإعدادات في ساحة التدريب، وعدّلها تدريجيًا حسب استجابة هاتفك. لا توجد حساسية واحدة مضمونة لكل اللاعبين.</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><p style="text-align:center;padding:20px;color:#9da495">يحتاج الموقع إلى تفعيل JavaScript.</p></noscript>
+</body>
+</html>

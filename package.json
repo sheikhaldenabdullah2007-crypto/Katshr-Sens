@@ -1,0 +1,6 @@
+{
+  "name": "katshr-sensitivity",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Free Fire sensitivity starting-point suggester (static site + optional AI search function)"
+}
