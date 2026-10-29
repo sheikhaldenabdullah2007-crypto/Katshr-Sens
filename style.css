@@ -270,3 +270,9 @@ select option { color: var(--text); background: #171a15; }
 @keyframes slide { 0% { transform: translateX(120%); } 100% { transform: translateX(-120%); } }
 @media (max-width: 480px) { .ai-summary { margin-right: 13px; margin-left: 13px; } }
 .spec-box strong { unicode-bidi: plaintext; text-align: right; }
+
+.game-info { margin: 0 20px 14px; padding: 12px 14px; background: #161a12; border: 1px solid #323a28; border-radius: 11px; }
+.game-info h3 { margin: 0 0 8px; font-size: 12px; color: #e8efdc; }
+.game-info h3 span { color: var(--accent); font-weight: 700; margin-right: 6px; unicode-bidi: plaintext; }
+.game-info ul { margin: 0; padding: 0 16px 0 0; display: grid; gap: 5px; color: #b9c2ad; font-size: 10.5px; line-height: 1.9; }
+@media (max-width: 480px) { .game-info { margin-right: 13px; margin-left: 13px; } }

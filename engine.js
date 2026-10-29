@@ -7,33 +7,42 @@
 
   /*
     منطق مشترك (المتصفح + api/analyze.js).
-    مهم: شريط الحساسية داخل Free Fire أقصاه 100 وليس 200.
-    القيم الأساسية مأخوذة من نطاقات منشورة (Sportskeeda, AFK Gaming, esports.net)
-    وهي نقاط بداية للتجربة وليست إعدادات رسمية من Garena.
+    شريط الحساسية في Free Fire الحالي (OB54/OB55، 2026) من 0 إلى 200؛
+    ملاحظات Garena الرسمية تؤكد رفع الحد إلى 200 لكنها لا تعطي قيمًا موصى بها.
+    القيم الأساسية مأخوذة من أدلة 2026 المنشورة (وهي متفاوتة) وهي نقاط بداية للتجربة فقط.
+    تحذير: لا تخلط بها أرقام أدلة 0-100 القديمة ولا تضاعفها.
   */
 
-  const MAX_SENSITIVITY = 100;
-  const MAX_DEVIATION = 15; // أقصى انحراف مسموح لاقتراح الذكاء الاصطناعي عن القيمة الأساسية
+  const MAX_SENSITIVITY = 200;
+  const MAX_DEVIATION = 25;
+  const FIRE_DEVIATION = 8; // أقصى انحراف مسموح لاقتراح الذكاء الاصطناعي عن القيمة الأساسية
 
   const SETTING_META = [
-    { key: "general", label: "General" },
-    { key: "redDot", label: "Red Dot" },
-    { key: "scope2x", label: "2x Scope" },
-    { key: "scope4x", label: "4x Scope" },
-    { key: "sniper", label: "Sniper Scope" },
-    { key: "freeLook", label: "Free Look" }
+    { key: "general", label: "General", max: 200, unit: "", half: false },
+    { key: "redDot", label: "Red Dot", max: 200, unit: "", half: false },
+    { key: "scope2x", label: "2x Scope", max: 200, unit: "", half: false },
+    { key: "scope4x", label: "4x Scope", max: 200, unit: "", half: false },
+    { key: "sniper", label: "Sniper Scope", max: 200, unit: "", half: true },
+    { key: "freeLook", label: "Free Look", max: 200, unit: "", half: true },
+    { key: "fireButton", label: "Fire Button Size", max: 100, unit: "%", half: false, fire: true }
   ];
 
   const PROFILES = {
-    balanced:  { general: 97,  redDot: 92, scope2x: 82, scope4x: 65, sniper: 48, freeLook: 78 },
-    rush:      { general: 100, redDot: 96, scope2x: 88, scope4x: 72, sniper: 52, freeLook: 82 },
-    precision: { general: 92,  redDot: 87, scope2x: 76, scope4x: 60, sniper: 42, freeLook: 70 }
+    balanced:  { general: 186, redDot: 175, scope2x: 155, scope4x: 135, sniper: 85, freeLook: 105, fireButton: 45 },
+    rush:      { general: 192, redDot: 180, scope2x: 160, scope4x: 138, sniper: 85, freeLook: 110, fireButton: 45 },
+    precision: { general: 176, redDot: 163, scope2x: 143, scope4x: 125, sniper: 75, freeLook: 95,  fireButton: 45 }
   };
 
+  // فرق حسب فئة الجهاز (اقتصادي، متوسط، قوي، رائد): الأضعف يأخذ قيمًا أعلى لتعويض التأخر
+  const TIER_SHIFT = [10, 0, -6, -12];
+  const FIRE_SHIFT = [4, 0, -2, -4];
+
   const REFERENCES = [
-    { title: "Sportskeeda — Best Free Fire MAX sensitivity settings", url: "https://sportskeeda.com/free-fire/best-free-fire-max-sensitivity-settings" },
-    { title: "AFK Gaming — Free Fire MAX best settings", url: "https://afkgaming.com/mobileesports/guide/free-fire-max-best-settings-for-more-accuracy-and-aiming" },
-    { title: "esports.net — Best sensitivity for Free Fire", url: "https://www.esports.net/news/mobile-games/best-sensitivity-for-free-fire" }
+    { title: "Garena — ملاحظات التحديثات الرسمية (تؤكد حد 200؛ بلا قيم موصى بها)", url: "https://ff.garena.com/en/news/20/" },
+    { title: "AR-Pay — Free Fire OB54 0-200 sensitivity", url: "https://ar-pay.com/blog/en/news/free-fire-sensitivity-2026-0-200-scale-9th-anniversary/" },
+    { title: "Takiff — Free Fire OB55 sensitivity tables by device tier", url: "https://takiff.online/blog/best-ff-sensitivity-for-ob55" },
+    { title: "SensiAI Pro — 0-200 values by RAM", url: "https://sensiaipro.online/blog/brazil-sensitivity-free-fire-guide.html" },
+    { title: "BitTopUp — Free Fire sensitivity (Aug 2026)", url: "https://bittopup.com/article/Free-Fire-Sensitivity-Settings-Guide-3040-Better-Aim" }
   ];
 
   const CATEGORY_LABELS = ["اقتصادي", "متوسط", "قوي", "رائد"];
@@ -141,19 +150,18 @@
     return { ...(PROFILES[style] || PROFILES.balanced) };
   }
 
-  // المصادر متضاربة حول أثر قوة الجهاز، لذلك التعديل صغير (±2) ويُعرض للمستخدم.
+  // أدلة 2026 تتفق على الاتجاه (الجهاز الأضعف قيم أعلى) وتختلف في المقدار، لذلك التعديل متوسط ومعروض للمستخدم.
   function suggestSettings(device, style) {
     const base = baselineFor(style);
     const perf = devicePerformance(device);
-    let adjustment = 0;
-    if (perf.category === 0) adjustment = -2;
-    else if (perf.category === 3 && perf.hz !== null && perf.hz >= 90) adjustment = 2;
+    const cat = perf.category;
 
-    const settings = SETTING_META.map((m) => ({
-      key: m.key,
-      label: m.label,
-      value: clampInt(base[m.key] + adjustment, 0, MAX_SENSITIVITY, base[m.key])
-    }));
+    const settings = SETTING_META.map((m) => {
+      let shift = 0;
+      if (cat !== null) shift = m.fire ? FIRE_SHIFT[cat] : Math.round(TIER_SHIFT[cat] * (m.half ? 0.5 : 1));
+      return { key: m.key, label: m.label, max: m.max, unit: m.unit, value: clampInt(base[m.key] + shift, 0, m.max, base[m.key]) };
+    });
+    const adjustment = cat === null ? 0 : TIER_SHIFT[cat];
     return { settings, adjustment, performance: perf };
   }
 
@@ -176,9 +184,12 @@
     }
   }
 
+  /*
+    وضع صارم: لا نخترع أي قيمة. إن نقصت قيمة أساسية، أو لم تُرفق مصادر صالحة، أو كان الترتيب
+    غير منطقي (تقريب أعلى = حساسية أقل)، تُرفض النتيجة كلها ويعود الموقع للتقدير المحلي المعنوَن.
+  */
   function sanitizeAiResult(raw, style, allowedUrls) {
     if (!raw || typeof raw !== "object") return null;
-    const base = baselineFor(style);
 
     const rd = raw.device && typeof raw.device === "object" ? raw.device : {};
     const ram = Number(rd.ram_gb);
@@ -193,11 +204,17 @@
     };
 
     const rs = raw.sensitivity && typeof raw.sensitivity === "object" ? raw.sensitivity : {};
-    const settings = SETTING_META.map((m) => {
-      const lo = Math.max(0, base[m.key] - MAX_DEVIATION);
-      const hi = Math.min(MAX_SENSITIVITY, base[m.key] + MAX_DEVIATION);
-      return { key: m.key, label: m.label, value: clampInt(rs[m.key], lo, hi, base[m.key]) };
-    });
+    const settings = [];
+    for (const m of SETTING_META) {
+      const n = Number(rs[m.key]);
+      if (!Number.isFinite(n) || n < 0 || n > m.max) {
+        if (m.fire) continue; // حجم الزر اختياري
+        return null;
+      }
+      settings.push({ key: m.key, label: m.label, max: m.max, unit: m.unit, value: Math.round(n) });
+    }
+    const v = Object.fromEntries(settings.map((x) => [x.key, x.value]));
+    if (!(v.redDot >= v.scope2x && v.scope2x >= v.scope4x && v.scope4x >= v.sniper)) return null;
 
     const rdpi = raw.dpi && typeof raw.dpi === "object" ? raw.dpi : {};
     const dpiValue = Number(rdpi.value);
@@ -213,10 +230,25 @@
       if (href && !sources.some((x) => x.url === href)) {
         sources.push({ title: cleanString(s.title, 100) || new URL(href).hostname, url: href });
       }
-      if (sources.length >= 5) break;
+      if (sources.length >= 6) break;
     }
+    if (sources.length < 2) return null; // بدون دليل لا نقبل أرقامًا
 
-    return { device, settings, dpi, summary: cleanString(raw.summary, 500), sources };
+    const rg = raw.game && typeof raw.game === "object" ? raw.game : {};
+    const changes = (Array.isArray(rg.changes) ? rg.changes : []).map((c) => cleanString(c, 200)).filter(Boolean).slice(0, 6);
+    const game = {
+      version: cleanString(rg.version, 40) || null,
+      date: cleanString(rg.date, 40) || null,
+      changes
+    };
+
+    const confidence = ["high", "medium", "low"].includes(raw.confidence) ? raw.confidence : "low";
+
+    return {
+      device, settings, dpi, game, confidence, sources,
+      basis: cleanString(raw.basis, 700),
+      summary: cleanString(raw.summary, 500)
+    };
   }
 
   return {

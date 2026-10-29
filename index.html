@@ -9,11 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Ccircle cx=%2712%27 cy=%2712%27 r=%278%27 fill=%27none%27 stroke=%27%23b8f34a%27 stroke-width=%272%27/%3E%3Ccircle cx=%2712%27 cy=%2712%27 r=%272.5%27 fill=%27%23b8f34a%27/%3E%3C/svg%3E">
-  <script src="catalog.js" defer></script>
-  <script src="engine.js" defer></script>
-  <script src="main.js" defer></script>
+  <script src="catalog.js?v=3" defer></script>
+  <script src="engine.js?v=3" defer></script>
+  <script src="main.js?v=3" defer></script>
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -151,8 +151,9 @@
       </div>
       <div class="notice-box"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><p id="resultNotice">الإعدادات التالية مقترحات أولية وليست نتائج مختبرة أو إعدادات رسمية.</p></div>
       <div class="spec-summary" id="specSummary"></div>
+      <section class="game-info hidden" id="gameInfo"><h3>آخر تحديث للعبة <span id="gameVersion"></span></h3><ul id="gameChanges"></ul></section>
       <p class="ai-summary hidden" id="aiSummary"></p>
-      <div class="settings-title"><h3>إعدادات الحساسية</h3><span>0–100</span></div>
+      <div class="settings-title"><h3>إعدادات الحساسية</h3><span>0–200</span></div>
       <div id="sensitivityList" class="sensitivity-list"></div>
       <div class="dpi-card"><div><span id="dpiLabel">DPI (كثافة الشاشة)</span><p id="dpiNote"></p></div><strong id="dpiValue">—</strong></div>
       <div class="result-actions"><button id="copyBtn" class="generate-btn" type="button"><svg viewBox="0 0 24 24" fill="none"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="1.7"/></svg><span>نسخ جميع الإعدادات</span></button><button id="newDeviceBtn" class="secondary-btn" type="button">تجربة هاتف آخر</button></div>

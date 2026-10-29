@@ -4,7 +4,7 @@
   const Engine = window.KatshrEngine;
   const CATALOG = window.DEVICE_CATALOG;
   const API_ENDPOINT = window.KATSHR_API || "/api/analyze";
-  const AI_TIMEOUT_MS = 65000;
+  const AI_TIMEOUT_MS = 125000;
 
   if (!Engine || !CATALOG) {
     console.error("Katshr: engine.js أو catalog.js لم يُحمّلا.");
@@ -211,14 +211,15 @@
     const r = Engine.suggestSettings(device, style);
     const known = device.processor || device.ram || device.refresh;
     let status =
-      "المواصفات من قائمة محلية مختصرة وليست متحققة آنيًا، وقيم الحساسية مبنية على نطاقات منشورة في مصادر خارجية (أدناه) مع تعديل بسيط حسب فئة الجهاز. لم يُجرَ بحث مباشر.";
+      "المواصفات من قائمة محلية مختصرة وليست متحققة آنيًا. قيم الحساسية (مقياس 0–200 الحالي) مبنية على أدلة 2026 المنشورة، وهي متفاوتة فيما بينها، مع تعديل حسب فئة الجهاز. لم يُجرَ بحث مباشر. ملاحظات Garena الرسمية تؤكد حد 200 فقط ولا توصي بقيم.";
     if (reason) status = reason + " " + status;
     if (!known) status += " لا توجد مواصفات لهذا الموديل، فالقيم عامة.";
     if (r.adjustment !== 0) {
-      status += ` تم تعديل القيم بمقدار ${r.adjustment > 0 ? "+" : ""}${r.adjustment} حسب فئة الجهاز (${r.performance.label}).`;
+      status += ` فئة الجهاز المقدّرة: ${r.performance.label}؛ عُدّلت القيم الرئيسية بمقدار ${r.adjustment > 0 ? "+" : ""}${r.adjustment} (الجهاز الأضعف يأخذ قيمًا أعلى لتعويض التأخر).`;
     }
     return {
       mode: "local",
+      game: null,
       title: device.brand ? `${device.brand} ${device.name}` : device.name,
       specs: { processor: specText(device.processor), ram: specText(device.ram), refresh: specText(device.refresh) },
       settings: r.settings,
@@ -233,6 +234,7 @@
 
   function aiView(device, ai) {
     const d = ai.device;
+    const conf = { high: "عالية", medium: "متوسطة", low: "منخفضة" }[ai.confidence];
     return {
       mode: "ai",
       title: d.name || (device.brand ? `${device.brand} ${device.name}` : device.name),
@@ -243,11 +245,10 @@
       },
       settings: ai.settings,
       dpi: buildDpi({ ...device, platform: d.platform }, ai.dpi),
-      summary: ai.summary,
-      notice: "اقتراح من الذكاء الاصطناعي بعد بحث عن مواصفات الجهاز. تبقى القيم نقطة بداية وليست إعدادات رسمية أو مختبرة.",
-      status: ai.sources.length
-        ? "المواصفات والاقتراح مبنيان على الصفحات التالية التي وجدها البحث. تحقق منها بنفسك قبل الاعتماد عليها."
-        : "لم يرجع البحث بمصادر صالحة، فتعامل مع المواصفات بحذر.",
+      game: ai.game,
+      summary: [ai.basis, ai.summary].filter(Boolean).join(" "),
+      notice: `الأرقام مشتقة من أدلة وجدها البحث لهذه النسخة (درجة الثقة: ${conf}). هي نقطة بداية للتجربة وليست إعدادات رسمية من Garena.`,
+      status: "المصادر التالية هي ما استند إليه البحث؛ افتحها وتحقق منها قبل الاعتماد على الأرقام.",
       sources: ai.sources,
       sourcesTitle: ""
     };
@@ -333,6 +334,7 @@
     if (code === "rate_limited" || status === 429) return "تجاوزت عدد الطلبات المسموح مؤقتًا.";
     if (code === "timeout" || status === 504) return "انتهت مهلة البحث.";
     if (code === "bad_device") return "اسم الموديل غير صالح للبحث.";
+    if (code === "insufficient_evidence") return "لم يجد البحث أدلة كافية وموثوقة لهذا الجهاز على النسخة الحالية، فلم تُعرض أرقام مخمّنة.";
     return "تعذّر الاتصال بخدمة الذكاء الاصطناعي.";
   }
 
@@ -370,10 +372,10 @@
     }
 
     const runId = ++state.runId;
-    $("analysisTitle").textContent = "جاري البحث عن مواصفات الجهاز";
-    $("analysisSubtitle").textContent = "قد يستغرق ذلك حتى دقيقة.";
+    $("analysisTitle").textContent = "جاري البحث والتحليل";
+    $("analysisSubtitle").textContent = "يبحث عن آخر تحديث للعبة ثم عن جهازك ثم عن إعدادات هذه النسخة، وقد يستغرق دقيقة أو دقيقتين.";
     $("analysisDisclaimer").textContent =
-      "يُرسَل اسم الموديل وأسلوب اللعب فقط. النتيجة اقتراح وليست إعدادات رسمية، وستظهر مصادرها بعد الانتهاء.";
+      "يُرسَل اسم الموديل وأسلوب اللعب فقط. لا تُعرض أرقام إلا إذا وُجدت لها مصادر، وإلا ستظهر رسالة صريحة.";
     ["stepDevice", "stepSpecs", "stepSettings"].forEach((id) => setStep(id, ""));
     setStep("stepDevice", "active");
     openModal(analysisModal, generateBtn);
@@ -422,13 +424,13 @@
       const label = document.createElement("span");
       label.textContent = s.label;
       const value = document.createElement("strong");
-      value.textContent = String(s.value);
+      value.textContent = `${s.value}${s.unit || ""}`;
       head.append(label, value);
       const track = document.createElement("div");
       track.className = "sense-track";
       const fill = document.createElement("div");
       fill.className = "sense-fill";
-      fill.style.width = `${(s.value / Engine.MAX_SENSITIVITY) * 100}%`;
+      fill.style.width = `${(s.value / (s.max || Engine.MAX_SENSITIVITY)) * 100}%`;
       track.appendChild(fill);
       row.append(head, track);
       container.appendChild(row);
@@ -452,6 +454,23 @@
     }
   }
 
+  function renderGame(game) {
+    const box = $("gameInfo");
+    const list = $("gameChanges");
+    list.replaceChildren();
+    if (!game || (!game.version && !game.date && !game.changes.length)) {
+      box.classList.add("hidden");
+      return;
+    }
+    $("gameVersion").textContent = [game.version, game.date].filter(Boolean).join(" · ") || "غير محدد";
+    for (const c of game.changes) {
+      const li = document.createElement("li");
+      li.textContent = c;
+      list.appendChild(li);
+    }
+    box.classList.remove("hidden");
+  }
+
   function showView(view) {
     state.lastView = view;
     $("resultDevice").textContent = view.title;
@@ -470,6 +489,7 @@
     addSpecBox(specs, "الذاكرة", view.specs.ram);
     addSpecBox(specs, "الشاشة", view.specs.refresh);
 
+    renderGame(view.game);
     renderSettings(view.settings);
 
     $("dpiLabel").textContent = view.dpi.label;
@@ -487,9 +507,9 @@
       "Katshr Sensitivity",
       `Device: ${view.title}`,
       "",
-      ...view.settings.map((s) => `${s.label}: ${s.value}`),
+      ...view.settings.map((s) => `${s.label}: ${s.value}${s.unit || ""}`),
       "",
-      "Note: starting-point suggestions (0-100), not verified official settings."
+      "Note: starting-point suggestions (0-200 scale), not official settings."
     ].join("\n");
     try {
       if (navigator.clipboard && window.isSecureContext) {
